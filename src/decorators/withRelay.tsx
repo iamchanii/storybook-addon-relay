@@ -3,10 +3,28 @@ import { RelayEnvironmentProvider, useLazyLoadQuery } from 'react-relay';
 import { GraphQLTaggedNode, OperationType } from 'relay-runtime';
 import { createMockEnvironment, MockPayloadGenerator } from 'relay-test-utils';
 
-export interface WithRelayParameters<TQuery extends OperationType> {
+export interface WithRelayParameters<
+  TQuery extends OperationType,
+  TResolvers = {},
+> {
   query: GraphQLTaggedNode;
   variables?: TQuery['variables'];
-  mockResolvers?: MockPayloadGenerator.MockResolvers;
+  mockResolvers?: Partial<
+    {
+      [ResolverTypeName in keyof TResolvers & string]: (
+        context: MockPayloadGenerator.MockResolverContext,
+        generateId: () => number,
+      ) => TResolvers[ResolverTypeName] extends infer ResolverType
+        ? ResolverType extends (...args: any[]) => any ? never
+        : {
+          [ResolverTypeFieldName in keyof ResolverType]: ResolverType[ResolverTypeFieldName] extends infer U
+            ? U extends (...args: any[]) => infer ResolverTypeFieldValue ? ResolverTypeFieldValue
+            : ResolverType[ResolverTypeFieldName]
+            : ResolverType[ResolverTypeFieldName];
+        }
+        : never;
+    }
+  >;
   getReferenceEntries: (queryResult: TQuery['response']) => [string, unknown][];
 }
 
