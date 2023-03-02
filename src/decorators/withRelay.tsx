@@ -25,10 +25,10 @@ export interface WithRelayParameters<
   mockResolvers?: InferMockResolvers<TResolvers>;
 
   /**
-   * A function that returns an entries array to be added to the story's args.
+   * A function that returns an entry to be added to the story's args.
    *
    * @param queryResult Result of the useLazyLoadQuery hook with the query passed as parameter.
-   * @returns An entries array to be added to the story's args.
+   * @returns An entry to be added to the story's args.
    */
   getReferenceEntry: (queryResult: TQuery['response']) => [string, unknown];
 }
