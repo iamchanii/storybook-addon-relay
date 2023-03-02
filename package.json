@@ -1,6 +1,6 @@
 {
   "name": "@imchhh/storybook-addon-relay",
-  "version": "0.0.3",
+  "version": "0.0.4",
   "description": "A Storybook addon for Relay",
   "main": "dist/preset.js",
   "types": "dist/index.d.ts",

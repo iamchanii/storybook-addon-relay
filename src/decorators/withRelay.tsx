@@ -2,6 +2,7 @@ import { makeDecorator } from '@storybook/addons';
 import { RelayEnvironmentProvider, useLazyLoadQuery } from 'react-relay';
 import { GraphQLTaggedNode, OperationType } from 'relay-runtime';
 import { createMockEnvironment, MockPayloadGenerator } from 'relay-test-utils';
+import { InferMockResolvers } from './types';
 
 export interface WithRelayParameters<
   TQuery extends OperationType,
@@ -21,30 +22,15 @@ export interface WithRelayParameters<
    * Optional. Mock resolver object pass to the relay-test-utils MockPayloadGenerator.generate function.
    * If you use TResolver type argument, you can get type safety <3
    */
-  mockResolvers?: Partial<
-    {
-      [ResolverTypeName in keyof TResolvers & string]: (
-        context: MockPayloadGenerator.MockResolverContext,
-        generateId: () => number,
-      ) => TResolvers[ResolverTypeName] extends infer ResolverType
-        ? ResolverType extends (...args: any[]) => any ? never
-        : {
-          [ResolverTypeFieldName in keyof ResolverType]: ResolverType[ResolverTypeFieldName] extends infer U
-            ? U extends (...args: any[]) => infer ResolverTypeFieldValue ? ResolverTypeFieldValue
-            : ResolverType[ResolverTypeFieldName]
-            : ResolverType[ResolverTypeFieldName];
-        }
-        : never;
-    }
-  >;
+  mockResolvers?: InferMockResolvers<TResolvers>;
 
   /**
-   * A function that returns an array of entries to be added to the story's args.
+   * A function that returns an entries array to be added to the story's args.
    *
    * @param queryResult Result of the useLazyLoadQuery hook with the query passed as parameter.
-   * @returns An array of entries to be added to the story's args.
+   * @returns An entries array to be added to the story's args.
    */
-  getReferenceEntries: (queryResult: TQuery['response']) => [string, unknown][];
+  getReferenceEntry: (queryResult: TQuery['response']) => [string, unknown];
 }
 
 export const withRelay = makeDecorator({
@@ -56,14 +42,14 @@ export const withRelay = makeDecorator({
       query,
       variables = {},
       mockResolvers = {},
-      getReferenceEntries,
-    } = parameters;
+      getReferenceEntry,
+    } = parameters as WithRelayParameters<any>;
 
     const Renderer = () => {
       const queryResult = useLazyLoadQuery(query, variables);
       Object.assign(
         context.args,
-        Object.fromEntries(getReferenceEntries(queryResult)),
+        Object.fromEntries([getReferenceEntry(queryResult)]),
       );
 
       return getStory(context) as any;
@@ -74,6 +60,8 @@ export const withRelay = makeDecorator({
     environment.mock.queueOperationResolver(operation => {
       return MockPayloadGenerator.generate(operation, mockResolvers);
     });
+
+    environment.mock.queuePendingOperation(query, variables);
 
     return (
       <RelayEnvironmentProvider environment={environment}>
