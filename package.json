@@ -1,6 +1,6 @@
 {
   "name": "@imchhh/storybook-addon-relay",
-  "version": "0.0.5",
+  "version": "0.0.6",
   "description": "A Storybook add-on to write stories for Relay components.",
   "main": "dist/preset.js",
   "types": "dist/index.d.ts",
@@ -10,13 +10,20 @@
     "preset.js"
   ],
   "keywords": [
+    "storybook-addons",
     "storybook",
     "relay",
     "addons"
   ],
-  "author": {
-    "name": "Chanhee Lee",
-    "email": "iamchanii.0310@gmail.com"
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/iamchanii/storybook-relay-addon"
+  },
+  "author": "iamchanii",
+  "storybook": {
+    "supportedFrameworks": [
+      "react"
+    ]
   },
   "license": "MIT",
   "packageManager": "yarn@3.4.1",
