@@ -4,7 +4,7 @@
 
 A Storybook add-on to write stories for Relay components.
 
-![DEMO](./.github/demo.webm)
+[](https://github.com/iamchanii/storybook-relay-addon/raw/main/.github/demo.webm)
 
 ## Installation
 
@@ -49,7 +49,7 @@ export const Default = {
 
 Here is a minimal example:
 
-```ts
+```tsx
 // UserAvatar.tsx
 export const UserAvatar = (props) => {
   const data = useFragment(
