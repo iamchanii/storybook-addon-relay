@@ -1,4 +1,5 @@
 import { MockPayloadGenerator } from 'relay-test-utils';
+import { PartialDeep } from 'type-fest';
 
 export type Primitive =
   | null
@@ -16,7 +17,7 @@ type ResolverReturnType<T> = T extends { resolve: infer U } ? ResolverReturnType
 type InferMockResolverFieldReturnType<T> = {
   [K in keyof T]: ResolverReturnType<T[K]> extends infer FieldResolverReturnType
     ? FieldResolverReturnType extends Primitive ? FieldResolverReturnType
-    : Partial<FieldResolverReturnType>
+    : PartialDeep<FieldResolverReturnType>
     : never;
 };
 
