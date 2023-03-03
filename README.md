@@ -4,7 +4,7 @@
 
 A Storybook add-on to write stories for Relay components.
 
-[](https://github.com/iamchanii/storybook-relay-addon/raw/main/.github/demo.webm)
+[github_demo.webm](https://user-images.githubusercontent.com/26643843/222612688-ca0cc4b5-9173-4215-a5cb-b8a46f20219e.webm)
 
 ## Installation
 
