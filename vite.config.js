@@ -5,7 +5,7 @@ export default defineConfig({
   build: {
     lib: {
       entry: ['src/index.ts'],
-      formats: ['es'],
+      formats: ['cjs'],
       fileName(format, entryName) {
         const ext = format === 'es' ? 'js' : 'cjs';
         return [entryName, ext].join('.');
