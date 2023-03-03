@@ -2,54 +2,91 @@
 
 [![npm version](https://badge.fury.io/js/@imchhh%2Fstorybook-addon-relay.svg)](https://badge.fury.io/js/@imchhh%2Fstorybook-addon-relay)
 
-A Storybook addon for Relay
+A Storybook add-on to write stories for Relay components.
 
 ## Installation
+
+Install the `@imchhh/storybook-addon-relay` package using the package manager of your choice:
 
 ```
 yarn add -D @imchhh/storybook-addon-relay
 ```
 
-## Getting Started
-
-Add `@imchhh/storybook-addon-relay` into `addons` array of `.storybook/main.c?(j|t)s`.
+Add `@imchhh/storybook-addon-relay` to the `addons` list in your `.storybook/main.c?(j|t)s` file:
 
 ```ts
 const config: StorybookConfig = {
   addons: [
     // ...
-    "@imchhh/storybook-addon-relay",
+    '@imchhh/storybook-addon-relay',
   ],
 };
 ```
 
-Add `relay` object into your story's `parameters`. This is an example:
+## Usage
+
+Add a `relay` field to your story's `parameters`.
 
 ```ts
-export default {
-  component: ProposalBuildingPropertyCostEffectiveBadge,
-};
-
-const query = graphql`
-  query ProposalBuildingPropertyCostEffectiveBadgeStorybookQuery
-  @relay_test_operation {
-    node(id: "test-id") {
-      ... on ProposalBuildingProperty {
-        ...ProposalBuildingPropertyCostEffectiveBadge
-      }
-    }
-  }
-`;
-
-export const Default: StoryObj = {
-  name: "costEffective=true",
+export const Default = {
   parameters: {
     relay: {
-      query,
-      getReferenceEntries: (data) => [["data", data.node]],
+      query: graphql`...`,
+      getReferenceEntry: (data) => ['data', data.node],
+      variables: {},
+      mockResolvers: {},
+    },
+  },
+};
+```
+
+- `query`: A `GraphQLTaggedNode` returned by the Relay's `graphql` template literal. You should pass the query operation that uses the `@relay_test_operation` directive.
+- `getReferenceEntry`: A function that returns an entry to be added to the story's args. It takes the result of the `useLazyLoadQuery` hook with the query passed as a parameter and returns an entry to be added to the story's args.
+- `variables`: Optional. Variables to pass to the query.
+- `mockResolvers`: Optional. A mock resolver object passed to the `relay-test-utils`' `MockPayloadGenerator.generate` function.
+
+Here is a minimal example:
+
+```ts
+// UserAvatar.tsx
+export const UserAvatar = (props) => {
+  const data = useFragment(
+    graphql`
+      fragment UserAvatar on User {
+        profileImageUrl
+      }
+    `,
+    props.user,
+  );
+
+  return <img src={data.profileImageUrl} alt="" />;
+};
+
+// UserAvatar.stories.tsx
+import { StoryObj } from '@storybook/react';
+import { graphql } from 'react-relay';
+import { UserAvatar } from './UserAvatar';
+
+export default {
+  component: UserAvatar,
+};
+
+export const Default: StoryObj = {
+  parameters: {
+    relay: {
+      query: graphql`
+        query UserAvatarStoryQuery @relay_test_operation {
+          node(id: "test-id") {
+            ... on User {
+              ...UserAvatar
+            }
+          }
+        }
+      `,
+      getReferenceEntry: queryResult => ['user', queryResult.node],
       mockResolvers: {
-        ProposalBuildingProperty: () => ({
-          costEffective: true,
+        User: () => ({
+          profileImageUrl: 'https://source.unsplash.com/random/400x400',
         }),
       },
     },
@@ -57,33 +94,90 @@ export const Default: StoryObj = {
 };
 ```
 
-If you're using TypeScript 4.9+, you can get type safe with `WithRelayParameters` and `satisfies` keyword.
+### TypeScript (Optional)
+
+If you are using TypeScript 4.9 or later, you can use the `WithRelayParameters` interface and the `satisfies` keyword to get type-safe:
 
 ```ts
-import { WithRelayParameters } from "@imchhh/storybook-addon-relay";
+// UserAvatar.stories.tsx
+import { WithRelayParameters } from '@imchhh/storybook-addon-relay';
+import { StoryObj } from '@storybook/react';
+import { graphql } from 'react-relay';
+import { UserAvatarStoryQuery } from '~/path/of/relay/artifacts';
+import { UserAvatar } from './UserAvatar';
 
-// ...
+export default {
+  component: UserAvatar,
+};
 
 export const Default: StoryObj = {
-  name: "costEffective=true",
   parameters: {
     relay: {
-      query,
-      getReferenceEntries: (data /* typed! */) => [["data", data.node]],
+      query: graphql`
+        query UserAvatarStoryQuery @relay_test_operation {
+          node(id: "test-id") {
+            ... on User {
+              ...UserAvatar
+            }
+          }
+        }
+      `,
+      // Now `queryResult` is typed!
+      getReferenceEntry: queryResult => ['user', queryResult.node],
       mockResolvers: {
-        /* typed! */
-        ProposalBuildingProperty: () => ({
-          costEffective: true,
+        User: () => ({
+          profileImageUrl: 'https://source.unsplash.com/random/400x400',
         }),
       },
-    } satisfies WithRelayParameters<
-      ProposalBuildingPropertyCostEffectiveBadgeStorybookQuery,
-      Resolvers
-      // You can generate resolver types using graphql-codegen.
-    >,
+    } satisfies WithRelayParameters<UserAvatarStoryQuery>,
   },
 };
 ```
+
+And you can pass the `Resolvers` type, which generated via [GraphQL Code Generator](https://the-guild.dev/graphql/codegen), as the second type parameter to `WithRelayParameters`.
+
+```ts
+// UserAvatar.stories.tsx
+import { WithRelayParameters } from '@imchhh/storybook-addon-relay';
+import { StoryObj } from '@storybook/react';
+import { graphql } from 'react-relay';
+import { Resolvers } from '~/path/of/codegen/generated';
+import { UserAvatarStoryQuery } from '~/path/of/relay/artifacts';
+import { UserAvatar } from './UserAvatar';
+
+export default {
+  component: UserAvatar,
+};
+
+export const Default: StoryObj = {
+  parameters: {
+    relay: {
+      query: graphql`
+        query UserAvatarStoryQuery @relay_test_operation {
+          node(id: "test-id") {
+            ... on User {
+              ...UserAvatar
+            }
+          }
+        }
+      `,
+      getReferenceEntry: queryResult => ['user', queryResult.node],
+      // Now `mockResolvers` is typed!
+      mockResolvers: {
+        User: () => ({
+          profileImageUrl: 'https://source.unsplash.com/random/400x400',
+        }),
+      },
+    } satisfies WithRelayParameters<UserAvatarStoryQuery, Resolvers>,
+  },
+};
+```
+
+These are totally optional, so feel free to skip them
+
+## Contribute
+
+I don't have any plans to write or set up a contribution guide. If this library doesn't solve your problem or isn't sufficient, please create an issue and describe your situation or suggestion. I would appreciate it very much.
 
 ## License
 
