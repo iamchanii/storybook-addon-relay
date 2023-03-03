@@ -4,6 +4,8 @@
 
 A Storybook add-on to write stories for Relay components.
 
+![DEMO](./.github/demo.webm)
+
 ## Installation
 
 Install the `@imchhh/storybook-addon-relay` package using the package manager of your choice:
