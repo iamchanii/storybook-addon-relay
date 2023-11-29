@@ -30,7 +30,7 @@ export interface WithRelayParameters<
    * @param queryResult Result of the useLazyLoadQuery hook with the query passed as parameter.
    * @returns An entry to be added to the story's args.
    */
-  getReferenceEntry: (queryResult: TQuery['response']) => [string, unknown];
+  getReferenceEntry: (queryResult: TQuery['response']) => [string, unknown] || [string, unknown][];
 }
 
 export const withRelay = makeDecorator({
@@ -47,9 +47,10 @@ export const withRelay = makeDecorator({
 
     const Renderer = () => {
       const queryResult = useLazyLoadQuery(query, variables);
+      const entries = getReferenceEntry(queryResult);
       Object.assign(
         context.args,
-        Object.fromEntries([getReferenceEntry(queryResult)]),
+        Object.fromEntries(typeof entries[0] === 'string' ? [entries] : entries),
       );
 
       return getStory(context) as any;
