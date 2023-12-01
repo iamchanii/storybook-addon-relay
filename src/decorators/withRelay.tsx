@@ -1,13 +1,13 @@
-import { makeDecorator } from '@storybook/addons';
-import { RelayEnvironmentProvider, useLazyLoadQuery } from 'react-relay';
-import { GraphQLTaggedNode, OperationType } from 'relay-runtime';
-import { createMockEnvironment, MockPayloadGenerator } from 'relay-test-utils';
-import { InferMockResolvers } from './types';
+import { makeDecorator } from "@storybook/addons";
+import { RelayEnvironmentProvider, useLazyLoadQuery } from "react-relay";
+import { GraphQLTaggedNode, OperationType } from "relay-runtime";
+import { MockPayloadGenerator, createMockEnvironment } from "relay-test-utils";
+import { InferMockResolvers } from "./types";
 
-export interface WithRelayParameters<
+export type WithRelayParameters<
   TQuery extends OperationType,
-  TResolvers = {},
-> {
+  TResolvers = {}
+> = {
   /**
    * A GraphQLTaggedNode returned by the relay's graphql`...` template literal.
    */
@@ -16,7 +16,7 @@ export interface WithRelayParameters<
   /**
    * Optional. Variables to pass to the query.
    */
-  variables?: TQuery['variables'];
+  variables?: TQuery["variables"];
 
   /**
    * Optional. Mock resolver object pass to the relay-test-utils MockPayloadGenerator.generate function.
@@ -30,35 +30,47 @@ export interface WithRelayParameters<
    * @param queryResult Result of the useLazyLoadQuery hook with the query passed as parameter.
    * @returns An entry to be added to the story's args.
    */
-  getReferenceEntry: (queryResult: TQuery['response']) => [string, unknown] || [string, unknown][];
-}
+} & (
+  | {
+      getReferenceEntry: (queryResult: TQuery["response"]) => [string, unknown];
+      getReferenceEntries?: never;
+    }
+  | {
+      getReferenceEntries: (
+        queryResult: TQuery["response"]
+      ) => Array<[string, unknown]>;
+      getReferenceEntry?: never;
+    }
+);
 
 export const withRelay = makeDecorator({
-  name: 'withRelay',
-  parameterName: 'relay',
+  name: "withRelay",
+  parameterName: "relay",
   skipIfNoParametersOrOptions: true,
   wrapper: (getStory, context, { parameters }) => {
-    const {
-      query,
-      variables = {},
-      mockResolvers = {},
-      getReferenceEntry,
-    } = parameters as WithRelayParameters<any>;
+    const pars = parameters as WithRelayParameters<any>;
+
+    const { query, variables = {}, mockResolvers = {} } = pars;
+
+    if (pars.getReferenceEntries && pars.getReferenceEntry) {
+      throw new Error(
+        "Both getReferenceEntries and getReferenceEntry cant be defined"
+      );
+    }
 
     const Renderer = () => {
       const queryResult = useLazyLoadQuery(query, variables);
-      const entries = getReferenceEntry(queryResult);
-      Object.assign(
-        context.args,
-        Object.fromEntries(typeof entries[0] === 'string' ? [entries] : entries),
-      );
+      const entries = pars.getReferenceEntries
+        ? pars.getReferenceEntries(queryResult)
+        : [pars.getReferenceEntry(queryResult)];
+      Object.assign(context.args, Object.fromEntries(entries));
 
       return getStory(context) as any;
     };
 
     const environment = createMockEnvironment();
 
-    environment.mock.queueOperationResolver(operation => {
+    environment.mock.queueOperationResolver((operation) => {
       return MockPayloadGenerator.generate(operation, mockResolvers);
     });
 
