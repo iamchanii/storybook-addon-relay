@@ -1,51 +1,52 @@
-import { makeDecorator } from "@storybook/addons";
-import { RelayEnvironmentProvider, useLazyLoadQuery } from "react-relay";
-import { GraphQLTaggedNode, OperationType } from "relay-runtime";
-import { MockPayloadGenerator, createMockEnvironment } from "relay-test-utils";
-import { InferMockResolvers } from "./types";
+import { makeDecorator } from '@storybook/addons';
+import { RelayEnvironmentProvider, useLazyLoadQuery } from 'react-relay';
+import { GraphQLTaggedNode, OperationType } from 'relay-runtime';
+import { createMockEnvironment, MockPayloadGenerator } from 'relay-test-utils';
+import { InferMockResolvers } from './types';
 
 export type WithRelayParameters<
   TQuery extends OperationType,
-  TResolvers = {}
-> = {
-  /**
-   * A GraphQLTaggedNode returned by the relay's graphql`...` template literal.
-   */
-  query: GraphQLTaggedNode;
+  TResolvers = {},
+> =
+  & {
+    /**
+     * A GraphQLTaggedNode returned by the relay's graphql`...` template literal.
+     */
+    query: GraphQLTaggedNode;
 
-  /**
-   * Optional. Variables to pass to the query.
-   */
-  variables?: TQuery["variables"];
+    /**
+     * Optional. Variables to pass to the query.
+     */
+    variables?: TQuery['variables'];
 
-  /**
-   * Optional. Mock resolver object pass to the relay-test-utils MockPayloadGenerator.generate function.
-   * If you use TResolver type argument, you can get type safety <3
-   */
-  mockResolvers?: InferMockResolvers<TResolvers>;
-
-  /**
-   * A function that returns an entry to be added to the story's args.
-   *
-   * @param queryResult Result of the useLazyLoadQuery hook with the query passed as parameter.
-   * @returns An entry to be added to the story's args.
-   */
-} & (
-  | {
-      getReferenceEntry: (queryResult: TQuery["response"]) => [string, unknown];
+    /**
+     * Optional. Mock resolver object pass to the relay-test-utils MockPayloadGenerator.generate function.
+     * If you use TResolver type argument, you can get type safety <3
+     */
+    mockResolvers?: InferMockResolvers<TResolvers>;
+    /**
+     * A function that returns an entry to be added to the story's args.
+     *
+     * @param queryResult Result of the useLazyLoadQuery hook with the query passed as parameter.
+     * @returns An entry to be added to the story's args.
+     */
+  }
+  & (
+    | {
+      getReferenceEntry: (queryResult: TQuery['response']) => [string, unknown];
       getReferenceEntries?: never;
     }
-  | {
+    | {
       getReferenceEntries: (
-        queryResult: TQuery["response"]
+        queryResult: TQuery['response'],
       ) => Array<[string, unknown]>;
       getReferenceEntry?: never;
     }
-);
+  );
 
 export const withRelay = makeDecorator({
-  name: "withRelay",
-  parameterName: "relay",
+  name: 'withRelay',
+  parameterName: 'relay',
   skipIfNoParametersOrOptions: true,
   wrapper: (getStory, context, { parameters }) => {
     const pars = parameters as WithRelayParameters<any>;
@@ -54,7 +55,7 @@ export const withRelay = makeDecorator({
 
     if (pars.getReferenceEntries && pars.getReferenceEntry) {
       throw new Error(
-        "Both getReferenceEntries and getReferenceEntry cant be defined"
+        'Both getReferenceEntries and getReferenceEntry cant be defined',
       );
     }
 
