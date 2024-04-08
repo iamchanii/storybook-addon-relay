@@ -1,7 +1,7 @@
 {
   "name": "@imchhh/storybook-addon-relay",
   "type": "commonjs",
-  "version": "0.0.10",
+  "version": "0.0.11",
   "description": "A Storybook add-on to write stories for Relay components.",
   "main": "dist/preset.js",
   "types": "dist/index.d.ts",
