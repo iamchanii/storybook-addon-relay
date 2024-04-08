@@ -34,6 +34,7 @@ export type WithRelayParameters<
         operation: OperationDescriptor,
         mockResolvers?: MockResolvers | null,
     ) => GraphQLSingularResponse;
+
     /**
      * A function that returns an entry to be added to the story's args.
      *
