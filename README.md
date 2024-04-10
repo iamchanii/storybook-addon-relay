@@ -46,7 +46,7 @@ export const Default = {
 - `getReferenceEntry`: A function that returns an entry to be added to the story's args. It takes the result of the `useLazyLoadQuery` hook with the query passed as a parameter and returns an entry to be added to the story's args.
 - `variables`: Optional. Variables to pass to the query.
 - `mockResolvers`: Optional. A mock resolver object passed to the `relay-test-utils`' `MockPayloadGenerator.generate` function.
-- `generateFunction`: Optional. A function which allows you to override the default MockPayloadGenerator.generate function.
+- `generateFunction`: Optional. A function to execute instead of the default `MockPayloadGenerator.generate` function.
 
 Here is a minimal example:
 
