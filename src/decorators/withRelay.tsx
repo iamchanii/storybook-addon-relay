@@ -28,7 +28,7 @@ export type WithRelayParameters<
     mockResolvers?: InferMockResolvers<TResolvers>;
 
     /**
-     * Optional. A function which allows you to override the default MockPayloadGenerator.generate function.
+     * Optional. A function to execute instead of the default MockPayloadGenerator.generate function.
      */
     generateFunction?: (
         operation: OperationDescriptor,
