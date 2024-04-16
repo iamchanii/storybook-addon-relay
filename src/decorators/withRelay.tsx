@@ -1,7 +1,9 @@
 import { makeDecorator } from '@storybook/addons';
 import { RelayEnvironmentProvider, useLazyLoadQuery } from 'react-relay';
-import { GraphQLTaggedNode, OperationType } from 'relay-runtime';
+import { GraphQLSingularResponse, GraphQLTaggedNode, OperationDescriptor, OperationType } from 'relay-runtime';
 import { createMockEnvironment, MockPayloadGenerator } from 'relay-test-utils';
+import { MockResolvers } from 'relay-test-utils/lib/RelayMockPayloadGenerator';
+import { OperationMockResolver } from 'relay-test-utils/lib/RelayModernMockEnvironment';
 import { InferMockResolvers } from './types';
 
 export type WithRelayParameters<
@@ -24,6 +26,15 @@ export type WithRelayParameters<
      * If you use TResolver type argument, you can get type safety <3
      */
     mockResolvers?: InferMockResolvers<TResolvers>;
+
+    /**
+     * Optional. A function to execute instead of the default MockPayloadGenerator.generate function.
+     */
+    generateFunction?: (
+        operation: OperationDescriptor,
+        mockResolvers?: MockResolvers | null,
+    ) => GraphQLSingularResponse;
+
     /**
      * A function that returns an entry to be added to the story's args.
      *
@@ -72,6 +83,9 @@ export const withRelay = makeDecorator({
     const environment = createMockEnvironment();
 
     environment.mock.queueOperationResolver((operation) => {
+      if (pars.generateFunction) {
+        return pars.generateFunction(operation, mockResolvers);
+      }
       return MockPayloadGenerator.generate(operation, mockResolvers);
     });
 
