@@ -1782,11 +1782,12 @@ __metadata:
     vite: ^4.1.4
     vite-plugin-dts: ^2.0.2
   peerDependencies:
+    "@storybook/addons": ^6 || ^7
     react: ^17 || ^18
     react-dom: ^17 || ^18
-    react-relay: ^14
-    relay-runtime: ^14
-    relay-test-utils: ^14
+    react-relay: ^14 || ^15 || ^16
+    relay-runtime: ^14 || ^15 || ^16
+    relay-test-utils: ^14 || ^15 || ^16
   peerDependenciesMeta:
     relay-runtime:
       optional: true
