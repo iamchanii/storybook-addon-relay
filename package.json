@@ -1,7 +1,7 @@
 {
   "name": "@imchhh/storybook-addon-relay",
   "type": "commonjs",
-  "version": "0.0.11",
+  "version": "0.0.13",
   "description": "A Storybook add-on to write stories for Relay components.",
   "main": "preset.js",
   "types": "dist/index.d.ts",
@@ -56,6 +56,7 @@
     "vite-plugin-dts": "^2.0.2"
   },
   "peerDependencies": {
+    "@storybook/addons": "^6 || ^7",
     "react": "^17 || ^18",
     "react-dom": "^17 || ^18",
     "react-relay": "^14 || ^15 || ^16",
