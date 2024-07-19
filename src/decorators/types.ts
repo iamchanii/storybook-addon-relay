@@ -17,7 +17,7 @@ type ResolverReturnType<T> = T extends { resolve: infer U } ? ResolverReturnType
 type InferMockResolverFieldReturnType<T> = {
   [K in keyof T]: ResolverReturnType<T[K]> extends infer FieldResolverReturnType
     ? FieldResolverReturnType extends Primitive ? FieldResolverReturnType
-    : PartialDeep<FieldResolverReturnType>
+    : PartialDeep<FieldResolverReturnType, { recurseIntoArrays: true }>
     : never;
 };
 
